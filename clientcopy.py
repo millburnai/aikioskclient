@@ -235,7 +235,11 @@ def on_message(ws, message):
         time.sleep(0.021)
     GPIO.cleanup()
 
-def on_message_test(ws,message): lcd.message(json.loads(message)) def on_error(ws,error): pass def on_close(ws): pass def on_open(ws):
+def on_message_test(ws,message): 
+    lcd.message(json.loads(message)) 
+def on_error(ws,error): pass 
+def on_close(ws): pass 
+def on_open(ws):
     def run(*args):
         ws.send("1")
 
