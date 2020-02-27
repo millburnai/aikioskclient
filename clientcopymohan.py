@@ -16,6 +16,7 @@ row_pins = [16,6,12,13]
 col_pins = [19,20,21]
 color_pins = [18,23]
 txt = ""
+
 #server_ip = "96.225.21.203"
 #server_port = 25565
 #server_connection = Connection(server_ip, server_port)
@@ -135,13 +136,11 @@ def reset(message="ID:             "):
 	#resets all variables and the LCD display for the next user
 	global txt
 	txt = ""
-	lcd.clear()
 	print("RESETTING")
 	lcd.set_cursor(0,1)
-	#lcd.message("                ")
+	lcd.message("                ")
 	lcd.home()
 	lcd.message(message)
-	print(message)
 	if "Look" in message: lcd.show_cursor(False) 
 	lcd.set_cursor(4, 0)
 	set_color(color_dict['white'])
@@ -176,12 +175,11 @@ def submit():
         time.sleep(0.021)
 		
 def press(id):
-    print(id)
     global txt
-    print(txt)
     #if enter is pressed and submit the id
     if id == 12 and len(txt) == 5:
-        if submit(): return True
+        if submit(): 
+            return True
     #if delete is pressed remove one number from input and txt
     if len(txt) > 0 and id == 10:
         txt = txt[:-1]
@@ -234,6 +232,7 @@ def on_message(ws, message):
 #        print("{} ignored, current_log: {}".format(name, current_log))
 #        ws.send(json.dumps({"signal":x.names}))
 #        reset("Look into camera")
+
 #        return
 #    else:
 #        current_log[name] = time.time()
@@ -244,6 +243,7 @@ def on_message(ws, message):
     while True: #time.time() < timeout_start + timeout:
         GPIO.output(row_pins[3], GPIO.HIGH)
         if GPIO.input(col_pins[0]): #power only to row 3
+            #GPIO.output(row_pins[3], GPIO.LOW) jank
             print("yeet")
             reset()
             timeout_start = time.time()

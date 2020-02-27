@@ -66,19 +66,26 @@ def send_to_server():
 #		lcd.message("ID is invalid			")
 
 	rObj = makeRec(txt)
-	name = rObj.names
+	
 	if (rObj.failed):
-		set_color(color_dict['red'])
-		lcd.set_cursor(0,0) 
-		lcd.message("Server Error")
-		lcd.set_cursor(0,1)
-		lcd.message("Contact Office")
-		time.sleep(2)
+                set_color(color_dict['red'])
+                lcd.set_cursor(0,0)
+                lcd.message("Server Error")
+                lcd.set_cursor(0,1)
+                lcd.message("Contact Office")
+                time.sleep(2)
 	else:
 		if (rObj.works):
 			set_color(color_dict['green'])
 			lcd.set_cursor(0,0)
 			welcStr = "ID Accepted \n" + rObj.names + ""
+			'''
+			welcStr = ''
+			if (rObj.leaving):
+				welcStr = "Goodbye     \n" + rObj.names + ""
+			else:
+				welcStr = "Welcome Back\n" + rObj.names + ""
+			'''
 			lcd.message(welcStr)
 		else:
 			set_color(color_dict['red'])
@@ -128,25 +135,20 @@ def send_to_server():
 	#sets the color back to normal	
 	
 	set_color(color_dict['null'])
-	return name
+	return
 
-def reset(message="ID:             "):
-	lcd.show_cursor(True)
+def reset():
 	#resets all variables and the LCD display for the next user
 	global txt
 	txt = ""
-	lcd.clear()
 	print("RESETTING")
 	lcd.set_cursor(0,1)
-	#lcd.message("                ")
+	lcd.message("                ")
 	lcd.home()
-	lcd.message(message)
-	print(message)
-	if "Look" in message: lcd.show_cursor(False) 
+	lcd.message("ID:             ")
 	lcd.set_cursor(4, 0)
 	set_color(color_dict['white'])
 	return
-
 
 
 def submit():
@@ -169,19 +171,17 @@ def submit():
                     return
         #if enter is pressed send to the server and reset
         elif(GPIO.input(col_pins[2])):
-            name = send_to_server()
-            reset("Look into camera")
-            ws.send(json.dumps({"signal":name}))
-            return True
+            send_to_server()
+            reset()
+            return
         time.sleep(0.021)
 		
 def press(id):
-    print(id)
     global txt
-    print(txt)
     #if enter is pressed and submit the id
     if id == 12 and len(txt) == 5:
-        if submit(): return True
+        submit()
+        return
     #if delete is pressed remove one number from input and txt
     if len(txt) > 0 and id == 10:
         txt = txt[:-1]
@@ -212,88 +212,22 @@ current = -1
 #Set up LCD
 lcd.show_cursor(True)
 lcd.home()
-lcd.message("Look into camera")
+lcd.message("ID: ")
 
 set_color(0)
-import websocket
-import json
-try:
-    import thread
-except ImportError:
-    import _thread as thread
-import time
+while True:
+    button_id = 0
+    for rp in row_pins:
 
-current_log = {}
-relog_threshold = 5.0
-
-def on_message(ws, message):
-    timeout= 3 
-    name = json.loads(message)
-
-#    if name in current_log and time.time()-current_log[name] > relog_threshold:
-#        print("{} ignored, current_log: {}".format(name, current_log))
-#        ws.send(json.dumps({"signal":x.names}))
-#        reset("Look into camera")
-#        return
-#    else:
-#        current_log[name] = time.time()
-
-    lcd.clear()
-    lcd.message(name+"\nYes-Enter,No-DEL")
-    timeout_start = time.time()
-    while True: #time.time() < timeout_start + timeout:
-        GPIO.output(row_pins[3], GPIO.HIGH)
-        if GPIO.input(col_pins[0]): #power only to row 3
-            print("yeet")
-            reset()
-            timeout_start = time.time()
-            while True: #time.time() < timeout_start + timeout:
-                 button_id = 0
-                 for rp in row_pins:
-                     GPIO.output(rp,GPIO.HIGH)
-                     for cp in col_pins:
-                          button_id += 1
-                          current = GPIO.input(cp)
-                          if current and not buttons_pressed[button_id - 1]:
-                               buttons_pressed[button_id - 1] = True
-                               if press(button_id): break
-                               timeout_start = time.time()
-                          elif not current and buttons_pressed[button_id - 1]:
-                               buttons_pressed[button_id - 1] = False 
-                     GPIO.output(rp, GPIO.LOW)
-                     time.sleep(0.021)
-            break
-
-        elif GPIO.input(col_pins[2]):
-#            if "liam" in name: x = makeRec("12808")
-            x = makeRec("12808")
-            ws.send(json.dumps({"signal":x.names}))
-            #print("hi")
-            #reset("Look into camera")
-            break
-    #print("We out")
-
-    lcd.clear()
-    reset("Look into camera")
-
-def on_message_test(ws,message): 
-    lcd.message(json.loads(message)) 
-def on_error(ws,error): print(error) 
-def on_close(ws): pass
-def on_open(ws):
-    def run(*args):
-        print("opened websocket")
-        ws.send(json.dumps({"id":"1"}))
-
-    thread.start_new_thread(run,())
-print("1")
-websocket.enableTrace(True)
-print("2")
-ws = websocket.WebSocketApp("ws://172.31.217.136:8000/v1/pi",on_message = lambda ws,msg: on_message(ws,msg),on_error = lambda ws, error: on_error(ws, error), on_close = on_close)
-print("3")
-
-ws.on_open = on_open
-ws.run_forever()
-
-#GPIO.cleanup()
-
+        GPIO.output(rp,GPIO.HIGH)
+        for cp in col_pins:
+                button_id += 1
+                current = GPIO.input(cp)
+                if current and not buttons_pressed[button_id  - 1]:
+                        buttons_pressed[button_id - 1] = True
+                        press(button_id)
+                elif not current and buttons_pressed[button_id - 1]:
+                        buttons_pressed[button_id - 1] = False 
+        GPIO.output(rp, GPIO.LOW)
+    time.sleep(0.021)
+GPIO.cleanup()
