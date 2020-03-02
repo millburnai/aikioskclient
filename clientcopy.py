@@ -170,8 +170,10 @@ def submit():
         #if enter is pressed send to the server and reset
         elif(GPIO.input(col_pins[2])):
             name = send_to_server()
-            reset("Look into camera")
+            #reset("Look into camera")
+            print("here")
             ws.send(json.dumps({"signal":name}))
+            print("here2")
             return True
         time.sleep(0.021)
 		
@@ -181,8 +183,12 @@ def press(id):
     print(txt)
     #if enter is pressed and submit the id
     if id == 12 and len(txt) == 5:
-        if submit(): return True
-    #if delete is pressed remove one number from input and txt
+        if submit(): 
+            print("here3")
+            return True
+        print("here4")
+        return
+        #if delete is pressed remove one number from input and txt
     if len(txt) > 0 and id == 10:
         txt = txt[:-1]
         lcd.set_cursor(4 + len(txt), 0)
@@ -237,7 +243,7 @@ def on_message(ws, message):
 #        return
 #    else:
 #        current_log[name] = time.time()
-
+    print("indaloop")
     lcd.clear()
     lcd.message(name+"\nYes-Enter,No-DEL")
     timeout_start = time.time()
@@ -247,7 +253,8 @@ def on_message(ws, message):
             print("yeet")
             reset()
             timeout_start = time.time()
-            while True: #time.time() < timeout_start + timeout:
+            submitted = False
+            while not submitted: #time.time() < timeout_start + timeout:
                  button_id = 0
                  for rp in row_pins:
                      GPIO.output(rp,GPIO.HIGH)
@@ -256,7 +263,7 @@ def on_message(ws, message):
                           current = GPIO.input(cp)
                           if current and not buttons_pressed[button_id - 1]:
                                buttons_pressed[button_id - 1] = True
-                               if press(button_id): break
+                               if press(button_id): submitted = True
                                timeout_start = time.time()
                           elif not current and buttons_pressed[button_id - 1]:
                                buttons_pressed[button_id - 1] = False 
@@ -268,13 +275,14 @@ def on_message(ws, message):
 #            if "liam" in name: x = makeRec("12808")
             x = makeRec("12808")
             ws.send(json.dumps({"signal":x.names}))
-            #print("hi")
+            print("hi")
             #reset("Look into camera")
             break
     #print("We out")
 
     lcd.clear()
     reset("Look into camera")
+    print("downhere")
 
 def on_message_test(ws,message): 
     lcd.message(json.loads(message)) 
