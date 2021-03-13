@@ -21,12 +21,6 @@ txt = ""
 #server_connection = Connection(server_ip, server_port)
 #server_connections.connect()
 
-#lcd.message("ID: ")
-#server_ip = "96.225.21.203"
-#server_port = 25565
-#server_connection = connection.Connection(server_ip,server_port)
-#server_connection.connect()
-
 color_dict = {
     "white": 0,
     "hotpink": 1,
@@ -50,20 +44,6 @@ def send_to_server():
 	#replaces bottom text with Checking and waits for a response from the server
 	lcd.set_cursor(0,1)
 	lcd.message("Checking...  ")
-	
-	#sends
-	#print(myConnection.send(Message(MessageType.CONNECTION, 0, b'/00/00')))
-	#response = myConnection.message_protocol(Message(MessageType.INPUT, 0, 12598))	
-	
-	#if(response.transactionID != -1):
-#		set_color(color_dict['green'])
-#		lcd.set_cursor(0,1)
-#		name = response.messageValue[4:][1::2].decode('utf-8')
-#		lcd.message('ID is invalid 	\n' + name)
-#	else:
-#		set_color(color_dict['red'])
-#		lcd.set_cursor(0,1)
-#		lcd.message("ID is invalid			")
 
 	rObj = makeRec(txt)
 	name = rObj.names
@@ -79,13 +59,6 @@ def send_to_server():
 			set_color(color_dict['green'])
 			lcd.set_cursor(0,0)
 			welcStr = "ID Accepted \n" + rObj.names + ""
-			'''
-			welcStr = ''
-			if (rObj.leaving):
-				welcStr = "Goodbye     \n" + rObj.names + ""
-			else:
-				welcStr = "Welcome Back\n" + rObj.names + ""
-			'''
 			lcd.message(welcStr)
 		else:
 			set_color(color_dict['red'])
@@ -109,30 +82,6 @@ def send_to_server():
 					GPIO.output(row_pins[3], GPIO.LOW)
 					return
 			time.sleep(0.021)
-
-
-	# if (rObj.works):
-	# 	set_color(color_dict['green'])
-	# 	lcd.set_cursor(0,0)
-	# 	welcStr = ''
-	# 	if (rObj.leaving):
-	# 		welcStr = "Goodbye     \n" + rObj.names + ""
-	# 	else:
-	# 		welcStr = "Welcome back\n" + rObj.names + ""
-	# 	lcd.message(welcStr)
-	# 	time.sleep(1.5)
-	# else:
-	# 	set_color(color_dict['red'])
-	# 	lcd.set_cursor(0,1)
-	# 	lcd.message("              ")
-	# 	lcd.set_cursor(0,0)
-	# 	if (rObj.failed):
-			
-	# 	else:
-	# 		lcd.message("ID not found")		
-	# 	time.sleep(2.5)
-
-	#sets the color back to normal	
 	
 	set_color(color_dict['null'])
 	return name
