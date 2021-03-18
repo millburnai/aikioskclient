@@ -176,6 +176,7 @@ import time
 def on_message(ws, message):
     lcd.clear()
     lcd.message(json.loads(message)+"\nYes-Enter,No-DEL")
+    print(json.loads(message))
     while True:
         GPIO.output(row_pins[3], GPIO.HIGH)
         if GPIO.input(col_pins[0]):
