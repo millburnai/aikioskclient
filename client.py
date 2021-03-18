@@ -209,6 +209,6 @@ def on_open(ws):
     thread.start_new_thread(run, ())
 
 websocket.enableTrace(True)
-ws = websocket.WebSocketApp("ws://172.31.217.136:8000/v1/pi", on_message = lambda ws,msg: on_message(ws,msg), on_error = lambda ws,error: on_error(ws, error))
+ws = websocket.WebSocketApp("ws://172.104.17.15:8000/v1/pi", on_message = lambda ws,msg: on_message(ws,msg), on_error = lambda ws,error: on_error(ws, error))
 ws.on_open = on_open
 ws.run_forever()
