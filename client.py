@@ -177,29 +177,30 @@ def on_message(ws, message):
     lcd.clear()
     lcd.message(json.loads(message)+"\nYes-Enter,No-DEL")
     print(json.loads(message))
-    while True:
-        GPIO.output(row_pins[3], GPIO.HIGH)
-        if GPIO.input(col_pins[0]):
-            reset()
-            not_submitted = True
-            while not_submitted:
-                button_id = 0
-                for rp in row_pins:
-                    GPIO.output(rp,GPIO.HIGH)
-                    for cp in col_pins:
-                            button_id += 1
-                            current = GPIO.input(cp)
-                            if current and not buttons_pressed[button_id  - 1]:
-                                    buttons_pressed[button_id - 1] = True
-                                    if press(button_id): not_submitted = False 
-                            elif not current and buttons_pressed[button_id - 1]:
-                                    buttons_pressed[button_id - 1] = False 
-                    GPIO.output(rp, GPIO.LOW)
-                time.sleep(0.021)
-            GPIO.cleanup()
-            break
-    GPIO.cleanup()
-    reset("Look into camera")
+    ws.send(json.dumps({"signal":False}))
+#    while True:
+#        GPIO.output(row_pins[3], GPIO.HIGH)
+#        if GPIO.input(col_pins[0]):
+#            reset()
+#            not_submitted = True
+#            while not_submitted:
+#                button_id = 0
+#                for rp in row_pins:
+#                    GPIO.output(rp,GPIO.HIGH)
+#                    for cp in col_pins:
+#                            button_id += 1
+#                            current = GPIO.input(cp)
+#                            if current and not buttons_pressed[button_id  - 1]:
+#                                    buttons_pressed[button_id - 1] = True
+#                                    if press(button_id): not_submitted = False 
+#                            elif not current and buttons_pressed[button_id - 1]:
+#                                    buttons_pressed[button_id - 1] = False 
+#                    GPIO.output(rp, GPIO.LOW)
+#                time.sleep(0.021)
+#            GPIO.cleanup()
+#            break
+#    GPIO.cleanup()
+#    reset("Look into camera")
 
 def on_error(ws, error):
     print(error)
@@ -210,6 +211,6 @@ def on_open(ws):
     thread.start_new_thread(run, ())
 
 websocket.enableTrace(True)
-ws = websocket.WebSocketApp("ws://172.104.17.15:8000/v1/pi", on_message = lambda ws,msg: on_message(ws,msg), on_error = lambda ws,error: on_error(ws, error))
+ws = websocket.WebSocketApp("ws://10.56.9.186:8000/v1/pi", on_message = lambda ws,msg: on_message(ws,msg), on_error = lambda ws,error: on_error(ws, error))
 ws.on_open = on_open
 ws.run_forever()
