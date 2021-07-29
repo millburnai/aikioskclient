@@ -10,7 +10,7 @@ class returnObj:
 		self.withInfo = withInfo
 
 def makeRec(userID):
-	iniFile = open("/home/pi/kiosk/client/ini.txt", "r")
+	iniFile = open("/Users/michaelpilarski/Desktop/aikioskclient/init.txt", "r")
 	rURL = iniFile.readline().rstrip()
 	kNum = int(iniFile.readline().rstrip())
 

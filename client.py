@@ -178,29 +178,19 @@ def on_message(ws, message):
     lcd.message(json.loads(message)+"\nYes-Enter,No-DEL")
     print(json.loads(message))
     ws.send(json.dumps({"signal":False}))
-#    while True:
-#        GPIO.output(row_pins[3], GPIO.HIGH)
-#        if GPIO.input(col_pins[0]):
-#            reset()
-#            not_submitted = True
-#            while not_submitted:
-#                button_id = 0
-#                for rp in row_pins:
-#                    GPIO.output(rp,GPIO.HIGH)
-#                    for cp in col_pins:
-#                            button_id += 1
-#                            current = GPIO.input(cp)
-#                            if current and not buttons_pressed[button_id  - 1]:
-#                                    buttons_pressed[button_id - 1] = True
-#                                    if press(button_id): not_submitted = False 
-#                            elif not current and buttons_pressed[button_id - 1]:
-#                                    buttons_pressed[button_id - 1] = False 
-#                    GPIO.output(rp, GPIO.LOW)
-#                time.sleep(0.021)
-#            GPIO.cleanup()
-#            break
-#    GPIO.cleanup()
-#    reset("Look into camera")
+    while True:
+        button_id = 0
+        for rp in row_pins:
+            GPIO.output(rp,GPIO.HIGH)
+            for cp in col_pins:
+                button_id += 1
+                current = GPIO.input(cp)
+                if current and not buttons_pressed[button_id - 1]:
+                    buttons_pressed[button_id - 1] = True
+                    print(button_id)
+                elif not current and buttons_pressed[button_id - 1]:
+                    buttons_pressed[button_id - 1] = False
+            GPIO.output(rp, GPIO.LOW)
 
 def on_error(ws, error):
     print(error)
