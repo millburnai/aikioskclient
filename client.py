@@ -13,7 +13,7 @@ print("Initalized lcd library")
 lcd.set_backlight(0)
 max_len = 4
 row_pins = [16,6,12,13]
-col_pins = [19,20,21]
+col_pins = [19,20,5]
 color_pins = [18,23]
 txt = ""
 #server_ip = "96.225.21.203"
@@ -178,7 +178,8 @@ def on_message(ws, message):
     lcd.message(json.loads(message)+"\nYes-Enter,No-DEL")
     print(json.loads(message))
     ws.send(json.dumps({"signal":False}))
-    while True:
+    confirmed = True
+    while confirmed:
         button_id = 0
         for rp in row_pins:
             GPIO.output(rp,GPIO.HIGH)
@@ -187,10 +188,16 @@ def on_message(ws, message):
                 current = GPIO.input(cp)
                 if current and not buttons_pressed[button_id - 1]:
                     buttons_pressed[button_id - 1] = True
-                    print(button_id)
+                    print (button_id)
+                    if button_id == 12:
+                        ws.send(json.dumps({"signal":True}))
+                        return
+                    elif button_id == 10:
+                        confirmed = False
                 elif not current and buttons_pressed[button_id - 1]:
                     buttons_pressed[button_id - 1] = False
             GPIO.output(rp, GPIO.LOW)
+    print("start stuff")
 
 def on_error(ws, error):
     print(error)
