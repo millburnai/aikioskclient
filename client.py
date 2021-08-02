@@ -86,7 +86,7 @@ def send_to_server():
 	set_color(color_dict['null'])
 	return name
 
-def reset(message="ID:            "):
+def reset(message="Look into camera"):
 	#resets all variables and the LCD display for the next user
 	global txt
 	txt = ""
@@ -95,6 +95,7 @@ def reset(message="ID:            "):
 	lcd.clear()
 	lcd.message("               ")
 	lcd.home()
+        set_color(0)
 	lcd.message(message)
 	print(message)
 	lcd.set_cursor(4, 0)
@@ -191,13 +192,34 @@ def on_message(ws, message):
                     print (button_id)
                     if button_id == 12:
                         ws.send(json.dumps({"signal":True}))
+                        lcd.clear()
+                        lcd.message("Look into camera")
                         return
                     elif button_id == 10:
                         confirmed = False
                 elif not current and buttons_pressed[button_id - 1]:
                     buttons_pressed[button_id - 1] = False
             GPIO.output(rp, GPIO.LOW)
-    print("start stuff")
+    lcd.clear()
+    lcd.message("ID: ")
+    set_color(0)
+    while True:
+        button_id = 0
+        for rp in row_pins:
+            GPIO.output(rp, GPIO.HIGH)
+            for cp in col_pins:
+                button_id += 1
+                current = GPIO.input(cp)
+                if current and not buttons_pressed[button_id - 1]:
+                    buttons_pressed[button_id - 1] = True
+                    press(button_id)
+                    print(button_id)
+                    if button_id == 12:
+                        ws.send(json.dumps({"signal":True}))
+                        return
+                elif not current and buttons_pressed[button_id - 1]:
+                    buttons_pressed[button_id - 1] = False
+            GPIO.output(rp, GPIO.LOW)
 
 def on_error(ws, error):
     print(error)
