@@ -20,6 +20,7 @@ txt = ""
 #server_port = 25565
 #server_connection = Connection(server_ip, server_port)
 #server_connections.connect()
+dict = {"liam_pilarski":12808, "ryan_park":16103}
 
 color_dict = {
     "white": 0,
@@ -40,12 +41,15 @@ def set_color(color):
     GPIO.output(color_pins[0], port0)
     lcd.set_backlight(back)
 
-def send_to_server():
+def send_to_server(id=None):
 	#replaces bottom text with Checking and waits for a response from the server
 	lcd.set_cursor(0,1)
 	lcd.message("Checking...  ")
 
-	rObj = makeRec(txt)
+	if id is None:
+		rObj = makeRec(txt)
+	else:
+		rObj = makeRec(id)
 	name = rObj.names
 	if (rObj.failed):
                 set_color(color_dict['red'])
@@ -95,7 +99,7 @@ def reset(message="Look into camera"):
 	lcd.clear()
 	lcd.message("               ")
 	lcd.home()
-        set_color(0)
+	set_color(0)
 	lcd.message(message)
 	print(message)
 	lcd.set_cursor(4, 0)
@@ -176,8 +180,9 @@ except ImportError:
 import time
 def on_message(ws, message):
     lcd.clear()
-    lcd.message(json.loads(message)+"\nYes-Enter,No-DEL")
-    print(json.loads(message))
+    name = json.loads(message)
+    lcd.message(name+"\nYes-ENT,No-CLR")
+    print(name)
     ws.send(json.dumps({"signal":False}))
     confirmed = True
     while confirmed:
@@ -192,6 +197,8 @@ def on_message(ws, message):
                     print (button_id)
                     if button_id == 12:
                         ws.send(json.dumps({"signal":True}))
+                        send_to_server(dict[name])
+                        time.sleep(2)
                         lcd.clear()
                         lcd.message("Look into camera")
                         return
