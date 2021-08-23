@@ -20,7 +20,24 @@ txt = ""
 #server_port = 25565
 #server_connection = Connection(server_ip, server_port)
 #server_connections.connect()
-dict = {"liam_pilarski":12808, "ryan_park":16103}
+
+import csv
+
+ids={}
+
+with open('ids.csv', mode='r') as f:
+    reader=csv.reader(f)
+    for row in reader:
+        name = row[1]
+        separated_name = name.lower().split(",")
+        first = separated_name[1]
+        last = separated_name[0]
+        combined = first + "_" + last
+        d[combined] = row[0]
+
+
+
+
 
 color_dict = {
     "white": 0,
