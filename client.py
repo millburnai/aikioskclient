@@ -27,14 +27,19 @@ ids={}
 
 with open('ids.csv', mode='r') as f:
     reader=csv.reader(f)
+    x = 0
     for row in reader:
-        name = row[1]
+        name, id = row[1], row[0]
+        x = x + 1
+        if x == 1: continue
         separated_name = name.lower().split(",")
+        print(separated_name)
         first = separated_name[1]
         last = separated_name[0]
         combined = first + "_" + last
-        d[combined] = row[0]
+        d[combined] = id
 
+print(ids)
 
 
 
