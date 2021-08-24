@@ -25,7 +25,7 @@ import csv
 
 ids={}
 
-with open('ids.csv', mode='r') as f:
+with open('/home/pi/aikioskclient/ids.csv', mode='r') as f:
     reader=csv.reader(f)
     x = 0
     for row in reader:
@@ -33,13 +33,10 @@ with open('ids.csv', mode='r') as f:
         x = x + 1
         if x == 1: continue
         separated_name = name.lower().split(",")
-        print(separated_name)
         first = separated_name[1]
         last = separated_name[0]
         combined = first + "_" + last
-        d[combined] = id
-
-print(ids)
+        ids[combined[1:]] = id
 
 
 
@@ -190,9 +187,7 @@ current = -1
 #Set up LCD
 lcd.show_cursor(True)
 lcd.home()
-lcd.message("Look into camera")
 
-set_color(0)
 import websocket
 import json
 try:
@@ -219,10 +214,8 @@ def on_message(ws, message):
                     print (button_id)
                     if button_id == 12:
                         ws.send(json.dumps({"signal":True}))
-                        send_to_server(dict[name])
-                        time.sleep(2)
-                        lcd.clear()
-                        lcd.message("Look into camera")
+                        send_to_server(ids[name])
+                        reset()
                         return
                     elif button_id == 10:
                         confirmed = False
@@ -256,9 +249,23 @@ def on_error(ws, error):
 def on_open(ws):
     def run(*args):
         ws.send(json.dumps({"id":"1"}))
+        reset()
     thread.start_new_thread(run, ())
 
-websocket.enableTrace(True)
-ws = websocket.WebSocketApp("ws://10.56.9.186:8000/v1/pi", on_message = lambda ws,msg: on_message(ws,msg), on_error = lambda ws,error: on_error(ws, error))
-ws.on_open = on_open
-ws.run_forever()
+
+from errno import ENETUNREACH
+successful = False
+lcd.message("Waiting for Wifi")
+set_color(color_dict["red"])
+while not successful:
+	try:
+		websocket.enableTrace(True)
+		ws = websocket.WebSocketApp("ws://10.56.9.186:8000/v1/pi", on_message = lambda ws,msg: on_message(ws,msg), on_error = lambda ws,error: on_error(ws, error))
+		ws.on_open = on_open
+		ws.run_forever()
+		succcesful = True
+	except IOError as e:
+                if e.errno == ENETUNREACH:
+			print("Network reach fail") 
+		else: 
+			raise
